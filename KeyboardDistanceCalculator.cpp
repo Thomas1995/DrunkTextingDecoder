@@ -30,25 +30,29 @@ class KeyboardDistanceCalculator
         double distMatrix[256][256];
         double probabilityMatrix[256][256];
 
+        inline double ProbabilityFunction(double x)
+        {
+            double A = 0.5f, B = 0.25f;
+            return max(0.0, A - B * x * x);
+        }
+
         void GetProbabilityMatrix()
         {
             for(int i = 0; i < 256; ++i)
                 if((i >= 'a' && i <= 'z') || (i >= '0' && i <= '9'))
                 {
-                    double probabilityTotal = 1;
+                    double probabilityTotal = probabilityMatrix[i][i] = ProbabilityFunction(0);
 
                     for(int j = 0; j < 256; ++j)
                     {
                         if(distMatrix[i][j])
-                            probabilityTotal += 1 / (distMatrix[i][j] + 1);
+                            probabilityTotal += probabilityMatrix[i][j] = ProbabilityFunction(distMatrix[i][j]);
                     }
 
-                    probabilityMatrix[i][i] = 1 / probabilityTotal;
-
                     for(int j = 0; j < 256; ++j)
                     {
-                        if(distMatrix[i][j])
-                            probabilityMatrix[i][j] = (1 / (distMatrix[i][j] + 1)) / probabilityTotal;
+                        if(probabilityMatrix[i][j])
+                            probabilityMatrix[i][j] /= probabilityTotal;
                     }
                 }
         }
@@ -81,4 +85,3 @@ class KeyboardDistanceCalculator
             }
         }
 };
-
